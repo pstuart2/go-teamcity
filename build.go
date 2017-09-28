@@ -41,7 +41,7 @@ func (c client) GetBuildByID(id int) (Build, error) {
 func (c client) GetBuilds(count int) ([]Build, error) {
 	debugf("GetBuilds(%d)", count)
 	args := url.Values{}
-	args.Set("locator", fmt.Sprintf("count:%d,running:any", count))
+	args.Set("locator", fmt.Sprintf("count:%d,running:any,branch:default:any", count))
 	args.Set("fields", "build(id,number,status,state,buildTypeId,statusText,running,percentageComplete,branchName)")
 
 	var list buildList
@@ -59,7 +59,7 @@ func (c client) GetBuilds(count int) ([]Build, error) {
 func (c client) GetRunningBuilds() ([]Build, error) {
 	debugf("GetRunningBuilds()")
 	args := url.Values{}
-	args.Set("locator", fmt.Sprintf("running:true"))
+	args.Set("locator", fmt.Sprintf("running:true,branch:default:any"))
 	args.Set("fields", "build(id,number,status,state,buildTypeId,statusText,running,percentageComplete,branchName)")
 
 	var list buildList
@@ -77,7 +77,7 @@ func (c client) GetRunningBuilds() ([]Build, error) {
 func (c client) GetBuildsForBuildType(id string, count int) ([]Build, error) {
 	debugf("GetBuildsForBuildType('%s', %d)", id, count)
 	args := url.Values{}
-	args.Set("locator", fmt.Sprintf("buildType:%s,count:%d,running:any", url.QueryEscape(id), count))
+	args.Set("locator", fmt.Sprintf("buildType:%s,count:%d,running:any,branch:default:any", url.QueryEscape(id), count))
 	args.Set("fields", "build(id,number,status,state,buildTypeId,statusText,running,percentageComplete,branchName)")
 
 	var list buildList
