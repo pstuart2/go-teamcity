@@ -3,7 +3,7 @@ package teamcity_test
 import (
 	"testing"
 
-	. "github.com/kapitanov/go-teamcity"
+	. "github.com/pstuart2/go-teamcity"
 )
 
 const (
@@ -160,6 +160,37 @@ func Test_GetBuilds(t *testing.T) {
 		t.Error("Got too many builds")
 		t.Fail()
 		return
+	}
+}
+
+func Test_GetRunningBuilds(t *testing.T) {
+	client := NewClient(TC_URL, GuestAuth())
+	builds, err := client.GetRunningBuilds()
+
+	if err != nil {
+		t.Error(err)
+		t.Fail()
+		return
+	}
+
+	if len(builds) == 0 {
+		t.Error("Got no builds")
+		t.Fail()
+		return
+	}
+
+	for _, build := range builds {
+		if build.ID == 0 {
+			t.Error("Got build with no ID")
+			t.Fail()
+			return
+		}
+
+		if build.Status != StatusRunning {
+			t.Error("Got build that is not running")
+			t.Fail()
+			return
+		}
 	}
 }
 

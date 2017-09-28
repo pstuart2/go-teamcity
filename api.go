@@ -34,6 +34,8 @@ type Client interface {
 	GetBuildByID(id int) (Build, error)
 	// Get N latest builds
 	GetBuilds(count int) ([]Build, error)
+	// Get running builds
+	GetRunningBuilds() ([]Build, error)
 	// Get N latest builds for a build type
 	GetBuildsForBuildType(id string, count int) ([]Build, error)
 
@@ -106,6 +108,8 @@ type Build struct {
 	Progress int `json:"progress"`
 	// Build type ID
 	BuildTypeID string `json:"buildTypeId"`
+	// Branch name for this build
+	BranchName string `json:"branchName"`
 }
 
 // Change is a TeamCity project change
