@@ -1,6 +1,9 @@
 package teamcity
 
-import "net/url"
+import (
+	"net/url"
+	"time"
+)
 
 // Authorizer is a TeamCity client authorizer
 type Authorizer interface {
@@ -110,6 +113,10 @@ type Build struct {
 	BuildTypeID string `json:"buildTypeId"`
 	// Branch name for this build
 	BranchName string `json:"branchName"`
+	// Start time for this build
+	StartDate time.Time `json:"startDate"`
+	// Finish time for this build
+	FinishDate time.Time `json:"finishDate"`
 }
 
 // Change is a TeamCity project change

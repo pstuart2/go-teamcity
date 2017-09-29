@@ -3,6 +3,9 @@ package teamcity
 import (
 	"fmt"
 	"net/url"
+	"time"
+
+	"github.com/metakeule/fmtdate"
 )
 
 type buildListItem struct {
@@ -14,6 +17,8 @@ type buildListItem struct {
 	Progress    int    `json:"percentageComplete"`
 	BuildTypeID string `json:"buildTypeId"`
 	BranchName  string `json:"branchName"`
+	StartDate   string `json:"startDate"`
+	FinishDate  string `json:"finishDate"`
 }
 
 type buildList struct {
@@ -42,7 +47,7 @@ func (c client) GetBuilds(count int) ([]Build, error) {
 	debugf("GetBuilds(%d)", count)
 	args := url.Values{}
 	args.Set("locator", fmt.Sprintf("count:%d,running:any,branch:default:any", count))
-	args.Set("fields", "build(id,number,status,state,buildTypeId,statusText,running,percentageComplete,branchName)")
+	args.Set("fields", "build(id,number,status,state,buildTypeId,statusText,running,percentageComplete,branchName,startDate,finishDate)")
 
 	var list buildList
 	err := c.httpGet("/builds", &args, &list)
@@ -60,7 +65,7 @@ func (c client) GetRunningBuilds() ([]Build, error) {
 	debugf("GetRunningBuilds()")
 	args := url.Values{}
 	args.Set("locator", fmt.Sprintf("running:true,branch:default:any"))
-	args.Set("fields", "build(id,number,status,state,buildTypeId,statusText,running,percentageComplete,branchName)")
+	args.Set("fields", "build(id,number,status,state,buildTypeId,statusText,running,percentageComplete,branchName,startDate)")
 
 	var list buildList
 	err := c.httpGet("/builds", &args, &list)
@@ -78,7 +83,7 @@ func (c client) GetBuildsForBuildType(id string, count int) ([]Build, error) {
 	debugf("GetBuildsForBuildType('%s', %d)", id, count)
 	args := url.Values{}
 	args.Set("locator", fmt.Sprintf("buildType:%s,count:%d,running:any,branch:default:any", url.QueryEscape(id), count))
-	args.Set("fields", "build(id,number,status,state,buildTypeId,statusText,running,percentageComplete,branchName)")
+	args.Set("fields", "build(id,number,status,state,buildTypeId,statusText,running,percentageComplete,branchName,startDate,finishDate)")
 
 	var list buildList
 	err := c.httpGet("/builds", &args, &list)
@@ -107,6 +112,8 @@ func createBuildFromJSON(item buildListItem) Build {
 		Progress:    item.Progress,
 		BuildTypeID: item.BuildTypeID,
 		BranchName:  item.BranchName,
+		StartDate:   dateFromTcString(item.StartDate),
+		FinishDate:  dateFromTcString(item.FinishDate),
 	}
 }
 
@@ -118,4 +125,18 @@ func createBuildsFromJSON(items []buildListItem) []Build {
 	}
 
 	return builds
+}
+
+func dateFromTcString(tcDateString string) time.Time {
+	if len(tcDateString) == 0 {
+		return time.Time{}
+	}
+
+	//20060102T150405-0700
+	date, err := fmtdate.Parse("YYYYMMDDThhmmssZZZZ", tcDateString)
+	if err != nil {
+		return time.Time{}
+	}
+
+	return date
 }
